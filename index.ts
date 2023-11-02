@@ -69,6 +69,49 @@ app.post('/tecnologias', retornaUsuarioExistente, async (req, res) => {
 });
 
 
+//Listando tecnologias de um determinado usuario
+app.get('/tecnologias', retornaUsuarioExistente,async(req, res) => {
+    const {userExpr} = req
+    const user= userExpr.id;
+    console.log(user);
+    
+    const comparaUser= await prismaClient.tecnologia.findMany({
+        where: {
+            usuarioId:user
+        }
+    })
+    
+    try {
+        res.status(200).json(comparaUser)
+    } catch (error) {
+        res.status(404).json({error: "Tecnologia não existe"})
+    }
+})
+
+
+//Atualizando uma tecnologia de um determinado usuario
+app.put('/tecnologias/:id', retornaUsuarioExistente,async(req, res) => {
+    const { titulo, dtPrazoFinal } = req.body;
+    const {id} = req.params
+    try {
+        const tecnologiaEncontrada = await prismaClient.tecnologia.update({
+            where: {
+                id:id
+            },
+            data:{
+                titulo:titulo,
+                dtPrazoFinal: dtPrazoFinal
+            }
+        })
+
+        return res.status(201).json(tecnologiaEncontrada)
+
+    } catch (e) {
+        return res.status(404).json({error: "Tecnologia não encontrada"}) 
+    }
+})
+
+
 
 app.listen(3002, () => {
     console.log("conectado");
