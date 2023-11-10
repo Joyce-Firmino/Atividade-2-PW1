@@ -113,6 +113,46 @@ app.put('/tecnologias/:id', retornaUsuarioExistente,async(req, res) => {
 
 
 
+// Marcando uma tecnologia como estudada
+app.patch('/tecnologias/:id/estudada', retornaUsuarioExistente,async(req, res) => {
+    const {id} = req.params;        
+    const estudada = true;
+    try {
+        const tecnologiaEncontrada = await prismaClient.tecnologia.update({
+            where: {
+                id:id
+            },
+            data:{
+                marcarEstudado:estudada
+            }
+        })
+
+        return res.status(201).json(tecnologiaEncontrada)
+
+    } catch (e) {
+        return res.status(404).json({error: "Tecnologia não encontrada"}) 
+    }
+});
+
+
+//Deletando uma tecnologia
+app.delete('/tecnologias/:idParaExcluir', retornaUsuarioExistente, async (req,res) => {
+    const { idParaExcluir } = req.params;     
+    try {
+        const tecnologiaEncontrada = await prismaClient.tecnologia.delete({
+            where: {
+                id:idParaExcluir
+            },
+        })
+
+        return res.status(201).json({message: 'Tecnologia deletada com sucesso!'})
+
+    } catch (e) {
+        return res.status(404).json({error: "Tecnologia não encontrada"}) 
+    }    
+})
+
+
 app.listen(3002, () => {
     console.log("conectado");
 })
