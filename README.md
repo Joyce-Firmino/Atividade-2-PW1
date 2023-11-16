@@ -21,7 +21,7 @@ Para usar este projeto, siga as etapas abaixo:
 
 2. Navegue até a pasta do projeto no terminal.
 
-3. Execute o comando a seguir para instalar as dependências necessárias:
+3. Execute o comando a seguir para instalar as dependências necessárias: npm i
 
 4. **Configurando o Banco de Dados:**
 - SQLite:
