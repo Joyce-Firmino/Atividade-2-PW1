@@ -1,56 +1,8 @@
-import { log } from "console";
-import { prismaClient } from "./prismaClient";
+import { prismaClient } from "../database/prismaClient";
 import express,{Request, Response, NextFunction} from 'express';
 
 
-const app = express();
-app.use(express.json())
-
-//Funcão Middleware que checara se existe o usuario requerido no banco de dados
-async function retornaUsuarioExistente(req: Request, res: Response, next: NextFunction) {
-    const usernome = String(req.headers.usernome);
-    const userEncontrado = await prismaClient.usuario.findFirst({
-        where: {
-            usernome: usernome
-        }
-    })
-    if (userEncontrado !== null){
-        req.userExpr = userEncontrado;
-        next();
-    }else{
-        res.status(500).json({ error: "Usuário não existe." });
-    } 
-}
-
-
-
-//criando um novo usuario
-app.post('/users', async (req,res) => {
-    const {nome, usernome} = req.body 
-    const comparaUser= await prismaClient.usuario.findFirst({
-        where: {
-            nome: nome,
-        }
-    })
-    if(comparaUser !== null){
-       return res.status(400).json({error: "Usuário já existe cadastre um novo usuário!"})
-    }
-    const novoClient = await prismaClient.usuario.create({
-        data:{
-            nome,
-            usernome,
-            tecnologias: {
-                create: []
-            }
-        }
-       });
-    return res.status(201).json(novoClient)
-})
-
-
-
-// Criando uma nova tecnologia
-app.post('/tecnologias', retornaUsuarioExistente, async (req, res) => {
+export async function criarTecnologia (req: Request, res: Response) {
     try {
         const { titulo, dtPrazoFinal } = req.body;
         const novaTecnologia = await prismaClient.tecnologia.create({
@@ -65,12 +17,12 @@ app.post('/tecnologias', retornaUsuarioExistente, async (req, res) => {
         return res.status(201).json(novaTecnologia);
     } catch (error) {
         return res.status(400).json({ error: "Tecnologia não foi criada" });
-    }
-});
+    }  
+}
 
 
-//Listando tecnologias de um determinado usuario
-app.get('/tecnologias', retornaUsuarioExistente,async(req, res) => {
+
+export async function listarTecnologia(req: Request, res: Response){
     const {userExpr} = req
     const user= userExpr.id;
     console.log(user);
@@ -86,11 +38,9 @@ app.get('/tecnologias', retornaUsuarioExistente,async(req, res) => {
     } catch (error) {
         res.status(404).json({error: "Tecnologia não existe"})
     }
-})
+};
 
-
-//Atualizando uma tecnologia de um determinado usuario
-app.put('/tecnologias/:id', retornaUsuarioExistente,async(req, res) => {
+export async function atualizarTecnologia(req: Request, res: Response){
     const { titulo, dtPrazoFinal } = req.body;
     const {id} = req.params
     try {
@@ -109,12 +59,9 @@ app.put('/tecnologias/:id', retornaUsuarioExistente,async(req, res) => {
     } catch (e) {
         return res.status(404).json({error: "Tecnologia não encontrada"}) 
     }
-})
+};
 
-
-
-// Marcando uma tecnologia como estudada
-app.patch('/tecnologias/:id/estudada', retornaUsuarioExistente,async(req, res) => {
+export async function marcarTecnologiaEstudada(req: Request, res: Response){
     const {id} = req.params;        
     const estudada = true;
     try {
@@ -132,11 +79,10 @@ app.patch('/tecnologias/:id/estudada', retornaUsuarioExistente,async(req, res) =
     } catch (e) {
         return res.status(404).json({error: "Tecnologia não encontrada"}) 
     }
-});
+};
 
 
-//Deletando uma tecnologia
-app.delete('/tecnologias/:idParaExcluir', retornaUsuarioExistente, async (req,res) => {
+export async function deletarTecnologia(req: Request, res: Response){
     const { idParaExcluir } = req.params;     
     try {
         const tecnologiaEncontrada = await prismaClient.tecnologia.delete({
@@ -150,9 +96,4 @@ app.delete('/tecnologias/:idParaExcluir', retornaUsuarioExistente, async (req,re
     } catch (e) {
         return res.status(404).json({error: "Tecnologia não encontrada"}) 
     }    
-})
-
-
-app.listen(3002, () => {
-    console.log("conectado");
-})
+};

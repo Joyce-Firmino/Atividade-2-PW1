@@ -4,9 +4,11 @@ type Usuario = {
     usernome: String;
   }
   type Tecnologia = {
-    cpf:string;
-    name:string;
-    id:string;
+    id:String;
+    titulo:String;
+    marcarEstudado:Boolean;
+    dtPrazoFinal:Date;
+    dtCriacao:Date;
   }
   
   declare namespace Express{
